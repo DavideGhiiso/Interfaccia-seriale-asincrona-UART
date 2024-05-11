@@ -13,15 +13,15 @@ entity REG_PS_8 is
 end REG_PS_8;
 
 architecture rtl of REG_PS_8 is
-    signal T: std_logic_vector(0 to 7); -- register content
+    signal T: std_logic_vector(0 to 9); -- register content
 begin
     reg: process(CLK, RST)
     begin
         if(RST = '1') then
-            T <= "11111111"; -- reset alto
+            T <= "0"; -- reset alto
         elsif(CLK'event and CLK = '1') then
             if(START = '1') then
-                T <= X;
+                T <= '1' & X  & '0';
             else
                 T(0) <= '0';
                 for i in 0 to 6 loop
