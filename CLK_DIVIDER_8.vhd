@@ -10,7 +10,7 @@ entity CLK_DIVIDER_8 is
 end CLK_DIVIDER_8;
 
 architecture structural of CLK_DIVIDER_8 is
-    component D_FF is
+    component D_FF_ASYNC_RST is
         port (
             CLK:    in  std_logic;
             D:      in  std_logic;
@@ -21,21 +21,21 @@ architecture structural of CLK_DIVIDER_8 is
     end component;
     signal L0, L1, L2, CLK_2, CLK_4: std_logic;
     begin
-        FF0: D_FF port map (
+        FF0: D_FF_ASYNC_RST port map (
             CLK => CLK,
             NOT_Q => L0,
             D => L0,
             RST => RST,
             Q => CLK_2
         );
-        FF1: D_FF port map (
+        FF1: D_FF_ASYNC_RST port map (
             CLK => CLK_2,
             NOT_Q => L1,
-            D => L1,
+            D => L1,    
             RST => RST,
             Q => CLK_4
         );
-        FF2: D_FF port map (
+        FF2: D_FF_ASYNC_RST port map (
             CLK => CLK_4,
             NOT_Q => L2,
             D => L2,
