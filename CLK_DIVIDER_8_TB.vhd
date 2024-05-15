@@ -20,7 +20,9 @@ architecture Behavioral of CLK_DIVIDER_8_TB is
 begin
     -- unit under test
     UUT: CLK_DIVIDER_8 port map (
-        CLK, RST, CLK_8
+        CLK => CLK,
+        RST => RST,
+        CLK_8 => CLK_8
     );
     
     CLK_process :process
@@ -30,9 +32,13 @@ begin
 			CLK <= '1';
 			wait for 15 ns;
 		end process;
-    process begin
+    
+
+    GEN: process begin
         RST <= '1';
-        wait for 80ns;
-        RST <= '0';
+        wait for 60ns;
+        RST <= '0';        
+        wait;
     end process;
+    
 end Behavioral;
