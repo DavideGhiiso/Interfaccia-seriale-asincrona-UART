@@ -31,13 +31,13 @@ begin
                           S;
             end case;
     end process;
-    lambda: process(PS)
+    lambda: process(START, CTS, PS)
         begin
             case PS is
                 when W | R =>
-                    Z <= '0';
+                    TX_ENABLE <= '0';
                 when S =>
-                    Z <= '1';
+                    TX_ENABLE <= '1';
             end case;
         end process;
     state: process(CLK)
@@ -47,16 +47,6 @@ begin
                     PS <= W;
                 else
                     PS <= NS;
-                end if;
-            end if;
-        end process;
-    output: process(CLK)
-        begin
-            if( CLK'event and CLK = '1' ) then
-                if( RST = '1' ) then
-                    TX_ENABLE <= '0';
-                else
-                    TX_ENABLE <= Z;
                 end if;
             end if;
         end process;
