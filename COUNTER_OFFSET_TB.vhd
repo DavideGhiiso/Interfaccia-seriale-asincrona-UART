@@ -1,11 +1,11 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-entity COUNTER_TB is
-end COUNTER_TB;
+entity OFFSET_COUNTER_TB is
+end OFFSET_COUNTER_TB;
 
-architecture arch of COUNTER_TB is    
-    component COUNTER is
+architecture Behavioral of OFFSET_COUNTER_TB is
+    component COUNTER_OS is
         port (
             CLK : in  std_logic;
             RST : in std_logic;
@@ -19,7 +19,7 @@ architecture arch of COUNTER_TB is
 	
 begin
     -- unit under test
-    UUT: COUNTER port map (
+    UUT: COUNTER_OS port map (
         CLK => CLK, 
         RST => RST, 
         Z => Z
@@ -37,11 +37,11 @@ begin
         RST <= '1';
         wait for 25 ns; -- start to count at 30ns
         RST <= '0';
-        wait for 145 ns; -- wait for a cycle = 30 (start of counter's cycle) + 20 * 8 - 25 (from the prev wait)
+        wait for 305 ns; -- wait for a cycle = 30 (start of counter's cycle) + 2 * 20 * 8 - 25 (from the prev wait)
         RST <= '1';
-        wait for 30 ns;
+        wait for 20 ns;
         RST <= '0';
         wait;
     end process;
 
-end arch;
+end Behavioral;
