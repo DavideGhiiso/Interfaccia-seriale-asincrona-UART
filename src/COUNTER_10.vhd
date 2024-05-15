@@ -1,25 +1,25 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-entity COUNTER is
+entity COUNTER_10 is
     Port ( CLK : in STD_LOGIC;
            RST : in STD_LOGIC;
            Z   : out STD_LOGIC);
-end COUNTER;
+end COUNTER_10;
 
-architecture arch of COUNTER is
-    signal T: STD_LOGIC_VECTOR (0 to 3);
+architecture arch of COUNTER_10 is
+    signal T: STD_LOGIC_VECTOR (0 to 4);
     
 begin
     reg: process(CLK, RST)
     begin
         if (CLK'event and CLK = '1') then
             if (RST = '1') then 
-                T <= "1000";
+                T <= "10000";
                 Z <= '0';
             else
-                T <= (not T(3)) & T(0 to 2);
-                Z <= '1' when T = "0000" else
+                T <= (not T(4)) & T(0 to 3);
+                Z <= '1' when T = "00001" else
                      '0';
             end if;
         end if;

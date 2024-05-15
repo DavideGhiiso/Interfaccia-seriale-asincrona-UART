@@ -1,11 +1,11 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-entity COUNTER_TB is
-end COUNTER_TB;
+entity COUNTER_8_TB is
+end COUNTER_8_TB;
 
-architecture arch of COUNTER_TB is    
-    component COUNTER is
+architecture arch of COUNTER_8_TB is    
+    component COUNTER_8 is
         port (
             CLK : in  std_logic;
             RST : in std_logic;
@@ -19,7 +19,7 @@ architecture arch of COUNTER_TB is
 	
 begin
     -- unit under test
-    UUT: COUNTER port map (
+    UUT: COUNTER_8 port map (
         CLK => CLK, 
         RST => RST, 
         Z => Z
