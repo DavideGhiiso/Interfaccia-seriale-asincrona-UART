@@ -13,33 +13,43 @@ entity RECEIVER is
 end RECEIVER;
 
 architecture arch of RECEIVER is
-    entity D_FF is
+    component D_FF is
         Port (
-            CLK:    in  std_logic;
-            D:      in  std_logic;
-            RST:    in  std_logic;
-            Q:      out std_logic;
-            NOT_Q:  out std_logic
+            CLK   : in  std_logic;
+            D     : in  std_logic;
+            RST   : in  std_logic;
+            Q     : out std_logic;
+            NOT_Q : out std_logic
         );
-    end D_FF;
+    end component;
 
-    entity COUNTER_8 is
+    component RX_ENABLE is
+        Port ( 
+            TX  : in STD_LOGIC;
+            EOT : in STD_LOGIC;
+            CLK : in STD_LOGIC;
+            RST : in STD_LOGIC;
+            Z   : out STD_LOGIC
+        );
+    end component;
+
+    component COUNTER_8 is
         Port ( 
             CLK : in STD_LOGIC;
             RST : in STD_LOGIC;
             Z   : out STD_LOGIC
         );
-    end COUNTER_8;
+    end component;
     
-    entity COUNTER_OS is
+    component COUNTER_OS is
         Port (
             CLK : in STD_LOGIC;
             RST : in STD_LOGIC;
             Z   : out STD_LOGIC
         );
-    end COUNTER_OS;
+    end component;
     
-    entity REG_SP_8 is
+    component REG_SP_8 is
         Port (
             CLK:        in  std_logic;
             CE:         in  std_logic;
@@ -47,13 +57,14 @@ architecture arch of RECEIVER is
             X:          in  std_logic;
             Z:          out std_logic_vector (0 to 7)
         );
-    end REG_SP_8;
+    end component;
     
     signal EOT     : STD_LOGIC;  -- End Of Transmission: activated when red a Byte from tx
     signal TX_EN   : STD_LOGIC;  -- When read the signal from TX
     signal SPR_CE  : STD_LOGIC;  -- Clock enable of the serial/parallel register
-    signal TX_D    : STD_LOGIC;  -- tx data after sampling
-    
+    signal TX_D    : STD_LOGIC;  -- tx data after "fast" sampling
+    signal NOT_TX_D: STD_LOGIC;
+
 begin
 
     TX_D_FF : D_FF port map (
@@ -61,7 +72,15 @@ begin
         RST => RST,
         D => TX,
         Q => TX_D,
-        NOT_Q => not TX_D
+        NOT_Q => NOT_TX_D
+    );
+
+    RX_EN : RX_ENABLE port map (
+        CLK => CLK, 
+        RST => RST,
+        EOT => EOT,
+        TX => TX_D,
+        Z => SPR_CE
     );
 
     CNT_8 : COUNTER_8 port map (
@@ -87,16 +106,6 @@ begin
 
     reg: process(CLK, RST)
     begin
-        if (CLK'event and CLK = '1') then
-            if (RST = '1') then 
-                T <= "1000";
-                Z <= '0';
-            else
-                T <= (not T(3)) & T(0 to 2);
-                Z <= '1' when T = "0000" else
-                     '0';
-            end if;
-        end if;
     end process;
 
 end arch;
