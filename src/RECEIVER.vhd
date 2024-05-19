@@ -5,7 +5,6 @@ entity RECEIVER is
     Port ( 
         CLK   : in STD_LOGIC;
         RST   : in STD_LOGIC;
-        RTS   : in STD_LOGIC;
         TX    : in STD_LOGIC;
         READY : out STD_LOGIC;
         DOUT  : out STD_LOGIC_VECTOR (0 to 7)
@@ -59,11 +58,14 @@ architecture arch of RECEIVER is
         );
     end component;
     
-    signal EOT     : STD_LOGIC;  -- End Of Transmission: activated when red a Byte from tx
-    signal TX_EN   : STD_LOGIC;  -- When read the signal from TX
-    signal SPR_CE  : STD_LOGIC;  -- Clock enable of the serial/parallel register
-    signal TX_D    : STD_LOGIC;  -- tx data after "fast" sampling
-    signal NOT_TX_D: STD_LOGIC;
+    signal EOT      : STD_LOGIC;  -- End Of Transmission: activated when red a Byte from tx
+    signal CLK_CNT  : STD_LOGIC;
+    signal RST_CNT  : STD_LOGIC;
+    signal SAMPLE_EN: STD_LOGIC;  -- enable sampling of TX
+    signal RX_EN    : STD_LOGIC;  -- output of RX_ENABLE
+    signal REG_EN   : STD_LOGIC;  -- Clock enable of the serial/parallel register
+    signal TX_D     : STD_LOGIC;  -- tx data after "fast" sampling
+    signal NOT_TX_D : STD_LOGIC;
 
 begin
 
@@ -75,37 +77,42 @@ begin
         NOT_Q => NOT_TX_D
     );
 
-    RX_EN : RX_ENABLE port map (
+    FSM_RX_EN : RX_ENABLE port map (
         CLK => CLK, 
         RST => RST,
         EOT => EOT,
         TX => TX_D,
-        Z => SPR_CE
+        Z => RX_EN
     );
 
     CNT_8 : COUNTER_8 port map (
-        CLK => CLK, 
-        RST => RST, 
+        CLK => CLK_CNT, 
+        RST => RST_CNT, 
         Z => EOT
     );
 
     CNT_OS : COUNTER_OS port map (
         CLK => CLK, 
         RST => RST, 
-        Z => TX_EN
+        Z => SAMPLE_EN
     );
 
     REG_SP : REG_SP_8 port map (
         CLK => CLK, 
         RST => RST,
-        CE => SPR_CE,
+        CE => REG_EN,
         X => TX_D,
         Z => DOUT
     );
-
-
-    reg: process(CLK, RST)
+    
+    reg: process(CLK, RST, RX_EN)
     begin
+        if (CLK'event and CLK = '1') then
+            CLK_CNT <= SAMPLE_EN or ((not REG_EN) and CLK);
+            RST_CNT <= RST;
+            REG_EN <= SAMPLE_EN and RX_EN;
+            READY <= EOT;
+        end if;
     end process;
 
 end arch;

@@ -9,20 +9,24 @@ entity RX_ENABLE is
            Z   : out STD_LOGIC);
 end RX_ENABLE;
 
-architecture Behavioral of RX_ENABLE is
+architecture arch of RX_ENABLE is
 type STATUS is (W, RX);
 signal PS, NS: STATUS;
 signal Y: STD_LOGIC;
 
 begin
 -- next state and output
-delta_lambda: process(PS, TX, EOT)
+delta: process(PS, TX, EOT)
 begin
     NS <= W  when PS = W and TX = '1' else
           RX when PS = W and TX = '0' else
           W  when PS = RX and EOT = '1' else
           RX when PS = RX and EOT = '0' else
           W;
+end process;
+
+lambda: process(PS, TX, EOT)
+begin
     if (PS = W) then Y <= '0';
     else Y <= '1';
     end if;
@@ -36,10 +40,10 @@ begin
             PS <= W;
             Z <= '0';
         else 
-            PS <= NS;
             Z <= Y;
+            PS <= NS;
         end if;
     end if;
 end process;
 
-end Behavioral;
+end arch;

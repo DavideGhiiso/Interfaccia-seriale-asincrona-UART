@@ -14,9 +14,9 @@ architecture Behavioral of OFFSET_COUNTER_TB is
     end component;
         
     signal CLK: std_logic;
-	signal RST: std_logic;
-	signal Z  : std_logic;
-	
+    signal RST: std_logic;
+    signal Z  : std_logic;
+    
 begin
     -- unit under test
     UUT: COUNTER_OS port map (
@@ -26,13 +26,13 @@ begin
     );
     
     CLK_process :process
-		begin
-			CLK <= '0';
-			wait for 10 ns;
-			CLK <= '1';
-			wait for 10 ns;
-		end process;
-		
+        begin
+            CLK <= '0';
+            wait for 10 ns;
+            CLK <= '1';
+            wait for 10 ns;
+        end process;
+        
     process begin
         RST <= '1';
         wait for 25 ns; -- start to count at 30ns

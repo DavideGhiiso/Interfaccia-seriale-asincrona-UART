@@ -21,7 +21,6 @@ begin
                 Z <= '0';
             else
                 OS <= '1' when OS = '0' and T = "1111" else
-                      '0' when OS = '1' and T = "0000" else
                       '1' when OS = '1' else
                       '0';
                 T <= "1000" when OS = '0' and T = "1111" else
