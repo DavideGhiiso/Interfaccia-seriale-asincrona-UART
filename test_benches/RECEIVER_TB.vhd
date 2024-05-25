@@ -17,11 +17,11 @@ architecture arch of RECEIVER_TB is
         
     signal TX  : std_logic;
     signal CLK : std_logic;
-    signal RST : std_logic;
-    signal DOUT: std_logic_vector (0 to 7);
-    
-    signal MSG: std_logic_vector (0 to 7);
-    
+	signal RST : std_logic;
+	signal DOUT: std_logic_vector (0 to 7);
+	
+	signal MSG: std_logic_vector (0 to 7);
+	
 begin
     -- unit under test
     UUT: RECEIVER port map (
@@ -32,29 +32,29 @@ begin
     );
     
     CLK_process :process
-        begin
-            CLK <= '0';
-            wait for 5 ns;
-            CLK <= '1';
-            wait for 5 ns;
-        end process;
-        
+		begin
+			CLK <= '0';
+			wait for 5 ns;
+			CLK <= '1';
+			wait for 5 ns;
+		end process;
+		
     process begin
-        MSG <= "01101110";
+        MSG <= "10101010";
         RST <= '1';
-        wait for 15 ns;
+        wait for 7 ns;
         TX <= '1';
         wait for 15 ns;
         RST <= '0';
-        wait for 5 ns;
+        wait for 15 ns;
         TX <= '0';
-        wait for 40 ns;
+        wait for 80 ns;
         for I in 0 to 7 loop
             TX <= MSG(I);
-            wait for 40 ns;
+            wait for 80 ns;
         end loop;    
         TX <= '1';
-        wait for 80 ns;
+        wait for 120 ns;
         RST <= '1';
         wait;
     end process;

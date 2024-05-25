@@ -6,8 +6,7 @@ entity D_FF is
         CLK:    in  std_logic;
         D:      in  std_logic;
         RST:    in  std_logic;
-        Q:      out std_logic;
-        NOT_Q:  out std_logic
+        Q:      out std_logic
     );
 end D_FF;
 
@@ -17,11 +16,9 @@ begin
     begin
         if (CLK'event and CLK = '1') then
             if (RST = '1') then
-                Q <= '0';
-                NOT_Q <= '1';
+                Q <= '1';
             else
                 Q <= D;
-                NOT_Q <= not D;
             end if;
         end if;
     end process;
