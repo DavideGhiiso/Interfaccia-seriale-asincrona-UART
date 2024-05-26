@@ -21,23 +21,22 @@ architecture arch of RECEIVER is
         );
     end component;
     
-    component T_FF is
-        Port ( 
-            CLK : in  STD_LOGIC;
-            RST : in  STD_LOGIC;
-            T   : in  STD_LOGIC;
-            Q   : out STD_LOGIC
-        );
-    end component;
+    component EDGE_SEEKER is
+    Port ( 
+        RST : in  STD_LOGIC;
+        X   : in  STD_LOGIC;
+        Z   : out STD_LOGIC
+    );
+end component;
 
-    component RX_ENABLE is
+    component RX_FSM is
         Port ( 
             CLK   : in  STD_LOGIC;
             RST   : in  STD_LOGIC;
+            CE    : in  STD_LOGIC;
             TX    : in  STD_LOGIC;
-            SEN   : in  STD_LOGIC;
-            EOT   : in  STD_LOGIC;
-            Q     : out STD_LOGIC
+            RE    : out STD_LOGIC;
+            EOT   : out STD_LOGIC
         );
     end component;
 
@@ -60,12 +59,12 @@ architecture arch of RECEIVER is
     end component;
     
     signal TX_D     : STD_LOGIC;  -- tx data after "fast" sampling
-    signal RX_DONE  : STD_LOGIC;  -- activated when red a Byte from tx
-    signal CLK_CNT  : STD_LOGIC;
-    signal RST_CNT  : STD_LOGIC;
-    signal SEN      : STD_LOGIC;  -- enable sampling of TX
+    signal EDGE_EN  : STD_LOGIC;
+    signal NOT_READ : STD_LOGIC;
+    signal READ     : STD_LOGIC;
+    signal SAMPLE   : STD_LOGIC;
+    signal RE       : STD_LOGIC;  -- enable sampling of TX
     signal EOT      : STD_LOGIC;  -- End Of Transmission
-    signal REG_EN   : STD_LOGIC;  -- Clock enable of the serial/parallel register
 
 begin
 
@@ -76,48 +75,42 @@ begin
         Q => TX_D
     );
     
-    READY_FF : T_FF port map (
-        CLK => CLK, 
-        RST => RST,
-        T => EOT,
-        Q => READY
+    ED_SEK : EDGE_SEEKER port map ( 
+        RST => EDGE_EN,
+        X => TX_D,
+        Z => READ
     );
 
-    RX_EN : RX_ENABLE port map (
-        CLK => CLK, 
+    FSM : RX_FSM port map (
+        CLK => SAMPLE, 
         RST => RST,
-        EOT => RX_DONE,
-        SEN => SEN,
+        CE => READ,
         TX => TX_D,
-        Q => REG_EN
+        RE => RE,
+        EOT => EOT
     );
 
-    F_CNT : COUNTER_8 port map ( -- fast counter (used for sampling)
+    CNT : COUNTER_8 port map ( -- fast counter (used for sampling)
         CLK => CLK, 
-        RST => RST_CNT, 
-        Z => SEN
-    );
-
-    S_CNT : COUNTER_8 port map ( -- slow counter (used to count the byte)
-        CLK => CLK_CNT, 
-        RST => RST_CNT, 
-        Z => RX_DONE
+        RST => NOT_READ, 
+        Z => SAMPLE
     );
 
     REG_SP : REG_SP_8 port map (
-        CLK => SEN, 
+        CLK => SAMPLE, 
         RST => RST,
-        CE => REG_EN,
+        CE => RE,
         X => TX_D,
         Z => DOUT
     );
     
     reg: process(CLK)
     begin
+        NOT_READ <= not READ;
         if (CLK'event and CLK = '1') then
-            RST_CNT <= RST or (not REG_EN);
-            CLK_CNT <= SEN or (not REG_EN);
-            EOT <= RX_DONE and (not READY);
+            EDGE_EN <= RST or EOT;
+            READY <= SAMPLE and EOT;
+            --READY <= EOT;
         end if;
     end process;
 

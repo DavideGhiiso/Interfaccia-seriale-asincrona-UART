@@ -19,7 +19,7 @@ begin
                 Z <= '0';
             else
                 T <= (not T(3)) & T(0 to 2);
-                Z <= '1' when T = "0000" else
+                Z <= '1' when T = "0001" else
                      '0';
             end if;
         end if;
