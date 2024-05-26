@@ -45,7 +45,7 @@ begin
     
     RST_CNT <= '1' when PS = W else RST;
     
-    state_output: process(CLK, CE)
+    state_output: process(CLK, CE, PS)
     begin
         if (RST = '1') then 
             PS <= W;
@@ -54,8 +54,8 @@ begin
         elsif (CLK'event and CLK = '1' and CE = '1') then
             PS <= NS;
             RE <= '1' when NS = R else '0';
-            --EOT <= '1' when NS = A else '0';
-            EOT <= DONE;
+            EOT <= '0' when NS = R else DONE;
+            --EOT <= DONE;
         end if;
     end process;
     

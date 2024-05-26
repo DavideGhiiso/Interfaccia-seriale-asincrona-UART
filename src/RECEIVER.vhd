@@ -40,7 +40,7 @@ end component;
         );
     end component;
 
-    component COUNTER_8 is
+    component COUNTER_OS is
         Port ( 
             CLK : in STD_LOGIC;
             RST : in STD_LOGIC;
@@ -90,7 +90,7 @@ begin
         EOT => EOT
     );
 
-    CNT : COUNTER_8 port map ( -- fast counter (used for sampling)
+    CNT : COUNTER_OS port map ( -- fast counter (used for sampling)
         CLK => CLK, 
         RST => NOT_READ, 
         Z => SAMPLE

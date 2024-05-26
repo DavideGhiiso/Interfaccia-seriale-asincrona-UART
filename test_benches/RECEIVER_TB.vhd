@@ -40,6 +40,7 @@ begin
 		end process;
 		
     process begin
+        -- setup
         MSG <= "10101010";
         RST <= '1';
         wait for 7 ns;
@@ -47,6 +48,8 @@ begin
         wait for 15 ns;
         RST <= '0';
         wait for 15 ns;
+        
+        -- start 1st message
         TX <= '0';
         wait for 80 ns;
         for I in 0 to 7 loop
@@ -55,6 +58,19 @@ begin
         end loop;    
         TX <= '1';
         wait for 120 ns;
+        
+        -- start 2nd message
+        MSG <= "00110011";
+        TX <= '0';
+        wait for 80 ns;
+        for I in 0 to 7 loop
+            TX <= MSG(I);
+            wait for 80 ns;
+        end loop;    
+        TX <= '1';
+        wait for 120 ns;
+        
+        -- reset before closing simulation
         RST <= '1';
         wait;
     end process;
