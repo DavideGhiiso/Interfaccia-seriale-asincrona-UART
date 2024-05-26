@@ -12,7 +12,7 @@ end PARITY_CHECKER;
 architecture Behavioral of PARITY_CHECKER is
 type STATUS is (EVEN, ODD);
 signal PS, NS : STATUS;
-signal Y : STD_LOGIC_VECTOR;
+signal Y : STD_LOGIC_VECTOR (0 to 1);
 
 begin
 -- next state and output

@@ -4,6 +4,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity D_FF is
     Port (
         CLK:    in  std_logic;
+        CE:     in  std_logic;
         D:      in  std_logic;
         RST:    in  std_logic;
         Q:      out std_logic;
@@ -15,7 +16,7 @@ architecture rtl of D_FF is -- Q = D only on the rising edge
 begin
     ff: process(CLK)
     begin
-        if (CLK'event and CLK = '1') then
+        if (CLK'event and CLK = '1' and CE = '1') then
             if (RST = '1') then
                 Q <= '0';
                 NOT_Q <= '1';

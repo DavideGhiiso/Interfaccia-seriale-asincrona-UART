@@ -28,9 +28,9 @@ begin
     CLK_process :process
 		begin
 			CLK <= '0';
-			wait for 15 ns;
+			wait for 1.25 ns;
 			CLK <= '1';
-			wait for 15 ns;
+			wait for 1.25 ns;
 		end process;
     
 

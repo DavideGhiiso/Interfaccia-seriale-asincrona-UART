@@ -20,7 +20,7 @@ begin
         if(CLK'event and CLK = '1') then
             if(RST = '1') then
                 T <= "0000000000";
-                Z <= '0';
+                Z <= '1';
                 
             elsif(START = '1') then
                 T <= '1' & X  & '0';

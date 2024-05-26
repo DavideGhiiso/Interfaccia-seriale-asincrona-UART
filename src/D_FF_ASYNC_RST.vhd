@@ -13,9 +13,9 @@ end D_FF_ASYNC_RST;
 
 architecture rtl of D_FF_ASYNC_RST is -- Q = D only on the rising edge
 begin
-    ff: process(CLK)
+    ff: process(CLK, RST)
     begin
-        if (RST = '1') then
+        if (RST'event and RST = '1') then
             Q <= '0';
             NOT_Q <= '1';
         elsif (CLK'event and CLK = '1') then
