@@ -91,6 +91,20 @@ begin
             LEN <= '0';
             wait for 180ns;
             CTS <= '0';
+            wait for 20ns;
+            -- 00101001 PAR:0 LEN:0 sudden interruption
+            LEN <= '0';
+            PARITY <= '0';
+            DIN <= "00101001";
+            CTS <= '1';
+            wait for 9ns;
+            START <= '1';
+            wait for 20ns;
+            START <= '0';
+            PARITY <= '0';
+            LEN <= '0';
+            wait for 75ns; --random time < 180ns
+            CTS <= '0';
             wait;
 		end process;
 end Behavioral;

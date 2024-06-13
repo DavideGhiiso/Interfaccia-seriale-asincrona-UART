@@ -37,7 +37,7 @@ architecture Behavioral of TRANSMITTER is
             CLK_8:  out std_logic
     );
     end component;
-    component REG_PS_10 is port (
+    component REG_PS_9 is port (
             CLK:        in  std_logic;
             START:      in std_logic;
             TX_ENABLE:  in std_logic;
@@ -69,6 +69,7 @@ architecture Behavioral of TRANSMITTER is
             PG_EVEN,
             PG_ODD,
             PAR_OUT,
+            REG_OUT,
             LEN_OUT: std_logic;
             
     signal D: std_logic_vector (0 to 7);
@@ -124,6 +125,12 @@ begin
         S => LEN_BUF,
         Z => LEN_OUT
     );
+    TX_MUX: MUX2 port map (
+        X => '1',
+        Y => REG_OUT,
+        S => TX_ENABLE,
+        Z => TX
+    );
     TX_EN_FSM: TX_ENABLE_FSM port map (
         START => START_BUF, 
         CTS => CTS_BUF,
@@ -131,12 +138,12 @@ begin
         RST => RST,
         TX_ENABLE => TX_ENABLE
     );
-    REG_PS: REG_PS_10 port map (
+    REG_PS: REG_PS_9 port map (
         CLK => CLK_8,
         START => START_BUF,
         TX_ENABLE => TX_ENABLE,
         RST => RST,
         X => D,
-        Z => TX
+        Z => REG_OUT
     );
 end Behavioral;
