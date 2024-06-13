@@ -57,10 +57,10 @@ begin
             wait for 80 ns;
         end loop;    
         TX <= '1';
-        wait for 120 ns;
+        wait for 160 ns;
         
         -- start 2nd message
-        MSG <= "00110011";
+        MSG <= "10010011";
         TX <= '0';
         wait for 80 ns;
         for I in 0 to 7 loop
