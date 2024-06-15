@@ -14,7 +14,6 @@ end TX_ENABLE_FSM;
 architecture Behavioral of TX_ENABLE_FSM is
     type STATUS is (W, R, S);
     signal PS, NS: STATUS;
-    signal Z: std_logic;
 begin
     delta: process(START, CTS, PS) 
         begin
