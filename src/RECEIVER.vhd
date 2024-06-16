@@ -7,96 +7,101 @@ entity RECEIVER is
         RST   : in STD_LOGIC;
         RX    : in STD_LOGIC;
         READY : out STD_LOGIC;
-        CTS   : out STD_LOGIC;
+        RTS   : out STD_LOGIC;
         DOUT  : out STD_LOGIC_VECTOR (0 to 7)
     );
 end RECEIVER;
 
 architecture arch of RECEIVER is
-    component D_FF is
-        Port (
-            CLK   : in  std_logic;
-            D     : in  std_logic;
-            RST   : in  std_logic;
-            Q     : out std_logic
-        );
+    component CLK_DIVIDER_8 is Port (
+        CLK   : in  std_logic;
+        RST   : in std_logic;
+        CLK_8 : out std_logic );
     end component;
     
-    component JK_FF is
-        Port ( 
-            J   : in STD_LOGIC;
-            K   : in STD_LOGIC;
-            CLK : in STD_LOGIC;
-            RST : in STD_LOGIC;
-            Z   : out STD_LOGIC
-        );
-    end component;
-
-    component COUNTER_OS is
-        Port ( 
-            CE  : in STD_LOGIC;
-            CLK : in STD_LOGIC;
-            RST : in STD_LOGIC;
-            Z   : out STD_LOGIC
-        );
+    component D_FF is Port (
+        CE    : in  std_logic;
+        CLK   : in  std_logic;
+        D     : in  std_logic;
+        RST   : in  std_logic;
+        Q     : out std_logic;
+        NOT_Q : out std_logic );
     end component;
     
-    component COUNTER_8 is
-        Port ( 
-            CE  : in STD_LOGIC;
-            CLK : in STD_LOGIC;
-            RST : in STD_LOGIC;
-            Z   : out STD_LOGIC);
+    component COUNTER_8 is Port ( 
+        CE  : in STD_LOGIC;
+        CLK : in STD_LOGIC;
+        RST : in STD_LOGIC;
+        RIF : in STD_LOGIC_VECTOR (0 to 3);
+        Z   : out STD_LOGIC );
     end component;
     
-    component REG_SP_8 is
-        Port (
-            CLK:        in  std_logic;
-            CE:         in  std_logic;
-            RST:        in  std_logic;
-            X:          in  std_logic;
-            Z:          out std_logic_vector (0 to 7)
-        );
+    component RX_FSM is Port (
+       CLK    : in  STD_LOGIC;
+       RST    : in  STD_LOGIC;
+       RX     : in  STD_LOGIC;
+       EOB    : in  STD_LOGIC;
+       EOT    : out STD_LOGIC;
+       SOT    : out STD_LOGIC;
+       ALERT  : out STD_LOGIC );
+    end component;
+        
+    component REG_SP_8 is Port (
+        CLK : in  std_logic;
+        CE  : in  std_logic;
+        RST : in  std_logic;
+        X   : in  std_logic;
+        Z   : out std_logic_vector (0 to 7) );
     end component;
     
+    signal CLK_8    : STD_LOGIC;
     signal RX_D     : STD_LOGIC;  -- rx data after "fast" sampling
     signal SAMPLE   : STD_LOGIC;  -- slower clock
-    signal CNT_EN   : STD_LOGIC;  -- enable sampling of rx
-    signal SOT      : STD_LOGIC;  -- Start Of Transmission
+    signal CNT_EN   : STD_LOGIC;  -- enable counters
     signal EOB      : STD_LOGIC;  -- End Of Byte
+    signal SOT      : STD_LOGIC;  -- Start Of Transmission
     signal EOT      : STD_LOGIC;  -- End Of Transmission
-    
-    signal START_RX : STD_LOGIC;
 
 begin
 
     RX_FF : D_FF port map (
         CLK => CLK, 
+        CE => '1',
         RST => RST,
         D => RX,
         Q => RX_D
     );
     
-    SOT_FF : JK_FF port map (
-        CLK => CLK, 
+    CLK_DIVIDER: CLK_DIVIDER_8 port map (
+        CLK => CLK,
         RST => RST,
-        J => START_RX,
-        K => EOB,
-        Z => SOT
+        CLK_8 => CLK_8
     );
 
-    CNT_OS : COUNTER_OS port map ( -- fast counter (used for sampling)
-        CE => CNT_EN,
+    CNT_FAST : COUNTER_8 port map ( -- fast counter (used for sampling)
+        CE => '1',
         CLK => CLK, 
-        RST => EOT, 
+        RST => EOT,
+        RIF => "0001", 
         Z => SAMPLE
     );
     
-    CNT_8 : COUNTER_8 port map ( -- fast counter (used for sampling)
-        CE => CNT_EN,
+    CNT_SLOW: COUNTER_8 port map ( -- slow counter (used to count the bits of the Byte)
+        CE => '1',
         CLK => SAMPLE, 
         RST => EOT, 
+        RIF => "0000",
         Z => EOB
+    );
+    
+    FSM : RX_FSM port map (
+        CLK => CLK_8,
+        RST => RST,
+        RX => RX_D,
+        EOB => EOB,
+        EOT => EOT,
+        SOT => SOT,
+        ALERT => READY
     );
 
     REG_SP : REG_SP_8 port map (
@@ -108,16 +113,6 @@ begin
     );
     
     CNT_EN <= not EOT;
-    START_RX <= EOT and not RX_D;
-    READY <= EOB and not SOT when RST = '0' else '1';
-    CTS <= not READY;
-    
-    p_eot: process(SAMPLE, EOB, SOT)
-    begin 
-        if (RST = '1') then EOT <= '1';
-        elsif (SAMPLE'event and SAMPLE = '1') then EOT <= EOB;
-        elsif (SOT = '1') then EOT <= '0';
-        end if;
-    end process;
+    RTS <= not READY;
 
 end arch;

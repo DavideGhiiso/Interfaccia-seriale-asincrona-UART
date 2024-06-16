@@ -6,6 +6,7 @@ entity COUNTER_8 is
         CE  : in STD_LOGIC;
         CLK : in STD_LOGIC;
         RST : in STD_LOGIC;
+        RIF : in STD_LOGIC_VECTOR (0 to 3);
         Z   : out STD_LOGIC
     );
 end COUNTER_8;
@@ -15,20 +16,18 @@ architecture arch of COUNTER_8 is
     signal Y : STD_LOGIC;
     
 begin
-    reg: process(CLK, CE, RST)
+    reg: process(CLK, CE, RST, RIF)
     begin
         if (RST = '1') then 
             T <= "1000";
             Y <= '0';
         elsif (CLK'event and CLK = '1' and CE = '1') then
-            if (Y = '0') then 
-                T <= (not T(3)) & T(0 to 2);
-            end if;
-            Y <= '1' when T = "0000";
+            T <= (not T(3)) & T(0 to 2);
+            Y <= '1' when T = RIF else '0';
         end if;
     end process;
     
-    out_proc: process(Y)
+    output: process(Y)
     begin
         Z <= Y;
     end process;
