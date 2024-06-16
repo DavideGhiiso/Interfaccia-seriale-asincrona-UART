@@ -2,27 +2,33 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
 entity COUNTER_8 is
-    Port ( CLK : in STD_LOGIC;
-           RST : in STD_LOGIC;
-           Z   : out STD_LOGIC);
+    Port ( 
+        CE  : in STD_LOGIC;
+        CLK : in STD_LOGIC;
+        RST : in STD_LOGIC;
+        RIF : in STD_LOGIC_VECTOR (0 to 3);
+        Z   : out STD_LOGIC
+    );
 end COUNTER_8;
 
 architecture arch of COUNTER_8 is
     signal T: STD_LOGIC_VECTOR (0 to 3);
+    signal Y : STD_LOGIC;
     
 begin
-    reg: process(CLK, RST)
+    reg: process(CLK, CE, RST, RIF)
     begin
-        if (CLK'event and CLK = '1') then
-            if (RST = '1') then 
-                T <= "1000";
-                Z <= '0';
-            else
-                T <= (not T(3)) & T(0 to 2);
-                Z <= '1' when T = "0000" else
-                     '0';
-            end if;
+        if (RST = '1') then 
+            T <= "1000";
+            Y <= '0';
+        elsif (CLK'event and CLK = '1' and CE = '1') then
+            T <= (not T(3)) & T(0 to 2);
+            Y <= '1' when T = RIF else '0';
         end if;
     end process;
-
+    
+    output: process(Y)
+    begin
+        Z <= Y;
+    end process;
 end arch;

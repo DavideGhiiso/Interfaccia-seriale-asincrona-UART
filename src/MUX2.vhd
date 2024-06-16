@@ -13,5 +13,5 @@ end MUX2;
 architecture Behavioral of MUX2 is
 
 begin
-    z <= (x and (not S)) or (y and S);
+    Z <= (X and (not S)) or (Y and S);
 end Behavioral;
