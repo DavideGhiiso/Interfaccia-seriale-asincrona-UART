@@ -46,7 +46,7 @@ begin
 		
     process begin
         -- setup
-        MSG <= "10101010";
+        MSG <= "11011100";
         RST <= '1';
         wait for 7 ns;
         RX <= '1';
@@ -62,10 +62,10 @@ begin
             wait for 80 ns;
         end loop;    
         RX <= '1';
-        wait for 160 ns;
+        wait for 240 ns;
         
         -- start 2nd message
-        MSG <= "10010011";
+        MSG <= "11111110";
         RX <= '0';
         wait for 80 ns;
         for I in 0 to 7 loop
