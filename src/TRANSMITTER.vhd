@@ -40,9 +40,9 @@ architecture Behavioral of TRANSMITTER is
     component REG_PS_9 is port (
             CLK:        in  std_logic;
             START:      in std_logic;
-            TX_ENABLE:  in std_logic;
+            CE:         in std_logic;
             RST:        in  std_logic;
-            X:          in  std_logic_vector (0 to 7);
+            X:          in  std_logic_vector (0 to 8);
             Z:          out std_logic
     );
     end component;
@@ -72,9 +72,9 @@ architecture Behavioral of TRANSMITTER is
             REG_OUT,
             LEN_OUT: std_logic;
             
-    signal D: std_logic_vector (0 to 7);
+    signal D: std_logic_vector (0 to 8);
 begin
-    D <= DIN(0 to 6) & LEN_OUT;
+    D <= DIN(0 to 6) & LEN_OUT & '0';
     CLK_DIVIDER: CLK_DIVIDER_8 port map (
         CLK => CLK,
         RST => RST,
@@ -141,7 +141,7 @@ begin
     REG_PS: REG_PS_9 port map (
         CLK => CLK_8,
         START => START_BUF,
-        TX_ENABLE => TX_ENABLE,
+        CE => TX_ENABLE,
         RST => RST,
         X => D,
         Z => REG_OUT

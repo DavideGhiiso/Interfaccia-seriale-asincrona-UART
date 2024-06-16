@@ -44,8 +44,6 @@ begin
 			wait for 1.25 ns;
 		end process;
 		process begin
-		    RST <= '0';
-		    wait for 1ns;
             RST <= '1';
             -- 00101010 PAR:0 LEN:1 -> 00101011
             START <= '0';
@@ -63,15 +61,17 @@ begin
             LEN <= '0';
             wait for 180ns;
             CTS <= '0';
-            wait for 20ns;
+            wait for 10ns;
             -- 00101001 PAR:1 LEN:1 -> 00101000
             LEN <= '1';
             PARITY <= '1';
             DIN <= "00101001";
-            CTS <= '1';
-            wait for 9ns;
+            
             START <= '1';
-            wait for 20ns;
+            wait for 10ns;
+            CTS <= '1';
+            
+            wait for 10ns;
             START <= '0';
             PARITY <= '0';
             LEN <= '0';

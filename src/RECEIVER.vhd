@@ -110,7 +110,7 @@ begin
         EOB => EOB,
         EOT => EOT,
         SOT => SOT,
-        ALERT => READY
+        ALERT => ALERT
     );
 
     REG_SP : REG_SP_8 port map (
@@ -121,6 +121,7 @@ begin
         Z => DOUT
     );
     
-    RTS <= not READY;
+    RTS <= not ALERT;
+    READY <= ALERT;
 
 end arch;

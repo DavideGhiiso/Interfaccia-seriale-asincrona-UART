@@ -26,7 +26,8 @@ begin
                     NS <= S when CTS = '1' else
                           R;
                 when S =>
-                    NS <= W when CTS = '0' else
+                    NS <= W when CTS = '0' and START = '0' else
+                          R when START = '1' and CTS = '0' else
                           S;
             end case;
     end process;
@@ -41,12 +42,10 @@ begin
         end process;
     state: process(CLK)
         begin
-            if( CLK'event and CLK = '1' ) then
-                if( RST = '1' ) then
-                    PS <= W;
-                else
-                    PS <= NS;
-                end if;
-            end if;
-        end process;
+        if( RST = '1' ) then
+            PS <= W;
+        elsif( CLK'event and CLK = '1' ) then      
+            PS <= NS;
+        end if;
+    end process;
 end Behavioral;
