@@ -20,7 +20,6 @@ begin
     begin
         if(RST = '1') then
                     T <= "000000000";
-                    --Z <= T(8);
         end if;
         if(CLK'event and CLK = '1') then
             if(START = '1') then
