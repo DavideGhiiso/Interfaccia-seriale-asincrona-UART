@@ -2,14 +2,13 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
 entity RX_FSM is
-    Port ( 
-        CLK    : in  STD_LOGIC;
-        RST    : in  STD_LOGIC;
-        RX     : in  STD_LOGIC;
-        EOB    : in  STD_LOGIC;
-        EOT    : out STD_LOGIC;
-        SOT    : out STD_LOGIC;
-        ALERT  : out STD_LOGIC
+    Port ( CLK    : in  STD_LOGIC;
+           RST    : in  STD_LOGIC;
+           RX     : in  STD_LOGIC;
+           EOB    : in  STD_LOGIC;
+           EOT    : out STD_LOGIC;
+           SOT    : out STD_LOGIC;
+           ALERT  : out STD_LOGIC
     );
 end RX_FSM;
 

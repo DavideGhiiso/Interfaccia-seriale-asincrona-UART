@@ -27,7 +27,7 @@ begin
         end if;
     end process;
     
-    output: process(Y)
+    out_proc: process(Y)
     begin
         Z <= Y;
     end process;
