@@ -25,8 +25,8 @@ architecture Behavioral of TRANSMITTER is
     );
     end component;
     component MUX2 is port ( 
-        X :     in STD_LOGIC;
-        Y :     in STD_LOGIC;
+        X0 :    in STD_LOGIC;
+        X1 :    in STD_LOGIC;
         S :     in STD_LOGIC;
         Z :     out STD_LOGIC
     );
@@ -40,9 +40,9 @@ architecture Behavioral of TRANSMITTER is
     component REG_PS_9 is port (
             CLK:        in  std_logic;
             START:      in std_logic;
-            TX_ENABLE:  in std_logic;
+            CE:         in std_logic;
             RST:        in  std_logic;
-            X:          in  std_logic_vector (0 to 7);
+            X:          in  std_logic_vector (0 to 8);
             Z:          out std_logic
     );
     end component;
@@ -70,11 +70,12 @@ architecture Behavioral of TRANSMITTER is
             PG_ODD,
             PAR_OUT,
             REG_OUT,
+            TX_MUX_OUT,
             LEN_OUT: std_logic;
             
-    signal D: std_logic_vector (0 to 7);
+    signal D: std_logic_vector (0 to 8);
 begin
-    D <= DIN(0 to 6) & LEN_OUT;
+    D <= DIN(0 to 6) & LEN_OUT & '0';
     CLK_DIVIDER: CLK_DIVIDER_8 port map (
         CLK => CLK,
         RST => RST,
@@ -108,28 +109,35 @@ begin
         D => PARITY,
         Q => PARITY_BUF
     );
+    FF_TX_BUF: D_FF port map (
+        CLK => CLK_8,
+        CE => '1',
+        RST => RST,
+        D => TX_MUX_OUT,
+        Q => TX
+    );
     PG: PARITY_GENERATOR port map (
         D => DIN,
         PG_EVEN => PG_EVEN,
         PG_ODD => PG_ODD
     );
     PAR_MUX: MUX2 port map (
-        X => PG_EVEN,
-        Y => PG_ODD,
+        X0 => PG_EVEN,
+        X1 => PG_ODD,
         S => PARITY_BUF,
         Z => PAR_OUT
     );
     LEN_MUX: MUX2 port map (
-        X => DIN(7),
-        Y => PAR_OUT,
+        X0 => DIN(7),
+        X1 => PAR_OUT,
         S => LEN_BUF,
         Z => LEN_OUT
     );
     TX_MUX: MUX2 port map (
-        X => '1',
-        Y => REG_OUT,
+        X0 => '1',
+        X1 => REG_OUT,
         S => TX_ENABLE,
-        Z => TX
+        Z => TX_MUX_OUT
     );
     TX_EN_FSM: TX_ENABLE_FSM port map (
         START => START_BUF, 
@@ -141,7 +149,7 @@ begin
     REG_PS: REG_PS_9 port map (
         CLK => CLK_8,
         START => START_BUF,
-        TX_ENABLE => TX_ENABLE,
+        CE => TX_ENABLE,
         RST => RST,
         X => D,
         Z => REG_OUT

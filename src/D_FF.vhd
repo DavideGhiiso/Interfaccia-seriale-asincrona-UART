@@ -7,19 +7,24 @@ entity D_FF is
         CE:     in  std_logic;
         D:      in  std_logic;
         RST:    in  std_logic;
-        Q:      out std_logic
+        Q:      out std_logic;
+        NOT_Q:  out std_logic
     );
 end D_FF;
 
 architecture rtl of D_FF is -- Q = D only on the rising edge
+    signal T : STD_LOGIC;
 begin
+    Q <= T;
+    NOT_Q <= not T;
+    
     ff: process(CLK)
     begin
         if (CLK'event and CLK = '1' and CE = '1') then
             if (RST = '1') then
-                Q <= '1';
+                T <= '1';
             else
-                Q <= D;
+                T <= D;
             end if;
         end if;
     end process;

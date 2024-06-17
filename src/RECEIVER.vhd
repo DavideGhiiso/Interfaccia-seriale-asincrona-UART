@@ -57,10 +57,10 @@ architecture arch of RECEIVER is
     signal CLK_8    : STD_LOGIC;
     signal RX_D     : STD_LOGIC;  -- rx data after "fast" sampling
     signal SAMPLE   : STD_LOGIC;  -- slower clock
-    signal CNT_EN   : STD_LOGIC;  -- enable counters
     signal EOB      : STD_LOGIC;  -- End Of Byte
     signal SOT      : STD_LOGIC;  -- Start Of Transmission
     signal EOT      : STD_LOGIC;  -- End Of Transmission
+    signal ALERT    : STD_LOGIC;
 
 begin
 
@@ -71,6 +71,15 @@ begin
         D => RX,
         Q => RX_D
     );
+    
+--    OUT_FF : D_FF port map (
+--        CLK => CLK_8, 
+--        CE => '1',
+--        RST => RST,
+--        D => ALERT,
+--        Q => READY,
+--        NOT_Q => RTS
+--    );
     
     CLK_DIVIDER: CLK_DIVIDER_8 port map (
         CLK => CLK,
@@ -101,7 +110,7 @@ begin
         EOB => EOB,
         EOT => EOT,
         SOT => SOT,
-        ALERT => READY
+        ALERT => ALERT
     );
 
     REG_SP : REG_SP_8 port map (
@@ -112,7 +121,7 @@ begin
         Z => DOUT
     );
     
-    CNT_EN <= not EOT;
-    RTS <= not READY;
+    RTS <= not ALERT;
+    READY <= ALERT;
 
 end arch;

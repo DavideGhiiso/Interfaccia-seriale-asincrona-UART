@@ -8,18 +8,17 @@ architecture Behavioral of D_FF_TB is
     component D_FF is
         port (
             CLK:    in  std_logic;
-            CE:     in  std_logic;
             D:      in  std_logic;
             RST:    in  std_logic;
             Q:      out std_logic;
             NOT_Q:  out std_logic
         );
     end component;
-    signal CLK,CE, D, RST, Q, NOT_Q: std_logic;
+    signal CLK, D, RST, Q, NOT_Q: std_logic;
     
 begin
     -- unit under test
-    UUT: D_FF port map (CLK,CE, D, RST, Q, NOT_Q);
+    UUT: D_FF port map (CLK, D, RST, Q, NOT_Q);
     
     CLK_process :process
 		begin
@@ -29,7 +28,6 @@ begin
 			wait for 15 ns;
 		end process;
     process begin
-        CE <= '1';
         D <= '0';
         RST <= '1';
         wait for 20ns;
