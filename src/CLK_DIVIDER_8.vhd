@@ -9,37 +9,24 @@ entity CLK_DIVIDER_8 is
     );
 end CLK_DIVIDER_8;
 
-architecture structural of CLK_DIVIDER_8 is
-    component D_FF_ASYNC_RST is
-        port (
-            CLK:    in  std_logic;
-            D:      in  std_logic;
-            RST:    in  std_logic;
-            Q:      out std_logic;
-            NOT_Q:  out std_logic
-        );
-    end component;
-    signal L0, L1, L2, CLK_2, CLK_4: std_logic;
+architecture arch of CLK_DIVIDER_8 is
+    signal T: STD_LOGIC_VECTOR (0 to 3);
+    
+begin
+    reg: process(CLK, RST)
     begin
-        FF0: D_FF_ASYNC_RST port map (
-            CLK => CLK,
-            NOT_Q => L0,
-            D => L0,
-            RST => RST,
-            Q => CLK_2
-        );
-        FF1: D_FF_ASYNC_RST port map (
-            CLK => CLK_2,
-            NOT_Q => L1,
-            D => L1,    
-            RST => RST,
-            Q => CLK_4
-        );
-        FF2: D_FF_ASYNC_RST port map (
-            CLK => CLK_4,
-            NOT_Q => L2,
-            D => L2,
-            RST => RST,
-            Q => CLK_8
-        );
-end structural;
+        if (CLK'event and CLK = '1') then
+            if (RST = '1') then 
+                T <= "1000";
+            else
+                T <= (not T(3)) & T(0 to 2);
+            end if;
+        end if;
+    end process;
+    
+    clock: process(T) 
+    begin
+        CLK_8 <= '0' when T(0) = '1' else '1';
+    end process;
+    
+end arch;
