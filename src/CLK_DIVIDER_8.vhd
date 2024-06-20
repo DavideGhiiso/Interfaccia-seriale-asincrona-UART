@@ -45,5 +45,5 @@ begin
         Z => CLK_8_FULL
     );
     
-    CLK_8 <= CLK_8_FULL and CLK_4 and CLK_2 and CLK;
+    CLK_8 <= CLK_8_FULL and CLK_4 and CLK_2;
 end structural;

@@ -34,9 +34,10 @@ architecture arch of UART is
         Port ( 
             CLK   : in STD_LOGIC;
             RST   : in STD_LOGIC;
+            FB    : in STD_LOGIC; -- Full Buffer
             RX    : in STD_LOGIC;
             READY : out STD_LOGIC;
-            RTS   : out STD_LOGIC;
+            CTS   : out STD_LOGIC;
             DOUT  : out STD_LOGIC_VECTOR (0 to 7)
     );
     end component;
@@ -58,9 +59,10 @@ begin
     RX_UNIT: RECEIVER port map (
         CLK => CLK, 
         RST => RST,
+        FB => '1',
         DOUT => DOUT, 
         RX => RX,
-        RTS => RTS, 
+        CTS => RTS, 
         READY => READY
     );
 
