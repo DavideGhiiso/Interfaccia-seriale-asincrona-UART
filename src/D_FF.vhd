@@ -12,7 +12,7 @@ entity D_FF is
     );
 end D_FF;
 
-architecture rtl of D_FF is -- Q = D only on the rising edge
+architecture rtl of D_FF is
     signal T : STD_LOGIC;
 begin
     Q <= T;

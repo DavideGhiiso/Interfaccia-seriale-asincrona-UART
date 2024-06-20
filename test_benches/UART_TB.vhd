@@ -23,11 +23,11 @@ architecture arch of UART_TB is
     signal DIN, DOUT : std_logic_vector (0 to 7);
     
     signal TX, START, CTS, LEN, PARITY, READY,
-           CLK, RST : std_logic;
+           CLK_TX, CLK_RX, RST, CLK_RX_ENABLE : std_logic;
 		
 begin
     UUT: UART port map (
-        CLK => CLK,
+        CLK => CLK_TX,
         RST => RST,
         -- tx
         DIN => DIN,
@@ -43,59 +43,69 @@ begin
         READY => READY
     );
     
-    CLK_process :process
+    CLK_process_TX: process
 		begin
-			CLK <= '0';
-			wait for 5 ns;
-			CLK <= '1';
-			wait for 5 ns;
+			CLK_TX <= '0';
+			wait for 1 ns;
+			CLK_TX <= '1';
+			wait for 1 ns;
 		end process;
+    CLK_process_RX: process
+    begin
+        if(CLK_RX_ENABLE='U') then
+            CLK_RX_ENABLE <= '1';
+            wait for 0.5ns; -- OFFSET
+        else
+            CLK_RX <= '0';
+            wait for 1001 ps;
+            CLK_RX <= '1';
+            wait for 1001 ps;
+        end if;
+    end process;
 	
 	process begin
-	RST <= '0';
-	wait for 5 ns;
-	RST <= '1';
-	
-	-- first message
-	START <= '0';
-	LEN <= '0';
-	PARITY <= '0';
-	DIN <= "01001101";
-	wait for 15 ns;
-	RST <= '0';
-	
-	wait for 20 ns;
-	START <= '1';
-	LEN <= '1';
-	
-	wait for 80 ns;
-	START <= '0';
-	LEN <= '0';
-	
-	for I in 0 to 8 loop
-            wait for 80 ns;
-        end loop;
-	
-	wait for 240 ns;
-	
-	-- second message
-	LEN <= '1';
-	PARITY <= '1';
-	START <= '1';
-	DIN <= "00011100";
-	
-	wait for 80 ns;
-	START <= '0';
-	LEN <= '0';
-	PARITY <= '0';
-	
-	for I in 0 to 8 loop
-            wait for 80 ns;
-        end loop;
-        
-	wait for 160 ns;
 	RST <= '1';
 	wait;
+	-- first message
+--	START <= '0';
+--	LEN <= '0';
+--	PARITY <= '0';
+--	DIN <= "01001101";
+--	wait for 15 ns;
+--	RST <= '0';
+	
+--	wait for 20 ns;
+--	START <= '1';
+--	LEN <= '1';
+	
+--	wait for 80 ns;
+--	START <= '0';
+--	LEN <= '0';
+	
+--	for I in 0 to 8 loop
+--            wait for 80 ns;
+--        end loop;
+	
+--	wait for 240 ns;
+	
+--	-- second message
+--	LEN <= '1';
+--	PARITY <= '1';
+--	START <= '1';
+--	DIN <= "00011100";
+	
+--	wait for 80 ns;
+--	START <= '0';
+--	LEN <= '0';
+--	PARITY <= '0';
+	
+--	for I in 0 to 8 loop
+--            wait for 80 ns;
+--        end loop;
+        
+--	wait for 160 ns;
+--	RST <= '1';
+--	wait;
 	end process;
 
 end arch;
