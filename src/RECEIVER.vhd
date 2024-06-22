@@ -59,10 +59,10 @@ architecture arch of RECEIVER is
     end component;
     
     signal J, K     : STD_LOGIC;
-    signal REG_EN   : STD_LOGIC;
-    signal CNT_EN   : STD_LOGIC;
+    signal RX_BUFF  : STD_LOGIC;  -- rx data after "fast" sampling
+    signal SAMPLE_EN: STD_LOGIC;
     signal CNT_RST  : STD_LOGIC;
-    signal RX_D     : STD_LOGIC;  -- rx data after "fast" sampling
+    signal REG_EN   : STD_LOGIC;
     signal SAMPLE   : STD_LOGIC;  -- slower clock enable to sample RX
     signal EOB      : STD_LOGIC;  -- End Of Byte
     signal EOT      : STD_LOGIC;  -- End Of Transmission
@@ -75,7 +75,7 @@ begin
         CLK => CLK, 
         CE  => '1',
         D   => RX,
-        Q   => RX_D
+        Q   => RX_BUFF
     );
     
     FB_FF : D_FF port map (
@@ -91,13 +91,13 @@ begin
         CLK => CLK,
         J   => J,
         K   => K,
-        Z   => CNT_EN
+        Z   => SAMPLE_EN
     );
 
     CNT_SAMPLE : COUNTER_8 port map ( -- fast counter (used for sampling) 
         RST => CNT_RST,
         CLK => CLK,
-        CE  => CNT_EN,
+        CE  => SAMPLE_EN,
         RIF => "1100", 
         Z   => SAMPLE
     );
@@ -114,7 +114,7 @@ begin
         RST   => RST,
         CLK   => CLK,
         CE    => SAMPLE,
-        RX    => RX_D,
+        RX    => RX_BUFF,
         EOB   => EOB,
         EOT   => EOT,
         ALERT => ALERT
@@ -124,13 +124,13 @@ begin
         RST => RST,
         CLK => CLK,
         CE => REG_EN,
-        X => RX_D,
+        X => RX_BUFF,
         Z => DOUT
     );
     
-    J <= not RX_D and not CNT_EN;
-    K <= RX_D and CNT_EN and EOT;
-    CNT_RST <= not CNT_EN;
+    J <= not RX_BUFF and not SAMPLE_EN;
+    K <= RX_BUFF and SAMPLE_EN and EOT;
+    CNT_RST <= not SAMPLE_EN;
     REG_EN <= not ALERT and SAMPLE;
     READY <= ALERT;
 
