@@ -31,7 +31,7 @@ architecture Behavioral of TRANSMITTER is
         Z :     out STD_LOGIC
     );
     end component;
-    component CLK_DIVIDER_8 is port (
+    component FREQ_DIVIDER_8 is port (
             CLK:    in  std_logic;
             RST:    in  std_logic;
             CLK_8:  out std_logic
@@ -82,7 +82,7 @@ begin
     D <= DIN_BUF(0 to 6) & LB_BUF;
     REG_PP_DIN_BUF_CE <= CLK_8 and not TX_ENABLE;
     
-    CLK_DIVIDER: CLK_DIVIDER_8 port map (
+    FREQ_DIVIDER: FREQ_DIVIDER_8 port map (
         CLK => CLK,
         RST => RST,
         CLK_8 => CLK_8

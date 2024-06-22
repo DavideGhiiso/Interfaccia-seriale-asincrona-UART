@@ -1,15 +1,15 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-entity CLK_DIVIDER_8 is
+entity FREQ_DIVIDER_8 is
     Port (
         CLK:    in  std_logic;
         RST:    in std_logic;
         CLK_8:  out std_logic
     );
-end CLK_DIVIDER_8;
+end FREQ_DIVIDER_8;
 
-architecture structural of CLK_DIVIDER_8 is
+architecture structural of FREQ_DIVIDER_8 is
     component JK_FF is
         port (
         J   : in STD_LOGIC;
