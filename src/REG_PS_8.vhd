@@ -20,8 +20,7 @@ begin
     begin
         if(RST = '1') then
                     T <= "11111111";
-        end if;
-        if(CLK'event and CLK = '1') then
+        elsif(CLK'event and CLK = '1') then
             if(LOAD = '1') then
                 T <= X;
             elsif(CE = '1') then
