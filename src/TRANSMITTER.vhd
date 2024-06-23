@@ -31,7 +31,7 @@ architecture Behavioral of TRANSMITTER is
         Z :     out STD_LOGIC
     );
     end component;
-    component CLK_DIVIDER_8 is port (
+    component FREQ_DIVIDER_8 is port (
             CLK:    in  std_logic;
             RST:    in  std_logic;
             CLK_8:  out std_logic
@@ -57,8 +57,8 @@ architecture Behavioral of TRANSMITTER is
     end component;
     component PARITY_GENERATOR is port (
         D:          in  std_logic_vector (0 to 7);
-        PG_EVEN:    out std_logic;
-        PG_ODD:     out std_logic
+        ODD:        in std_logic;
+        PG_OUT:     out std_logic
     );
     end component;
     signal  START_BUF,      -- start signal buffer
@@ -68,21 +68,21 @@ architecture Behavioral of TRANSMITTER is
             TX_ENABLE_BUF,  -- TX_ENABLE signal buffer
             CLK_8,          -- clk divider out signal
             TX_ENABLE,      -- signal that starts transmission
-            PG_EVEN,        -- parity generator even out signal
-            PG_ODD,         -- parity generator odd out signal
-            PAR_OUT,        -- parity multiplexer out
+            PG_OUT,         -- parity multiplexer out
             REG_OUT,        -- register out
             TX_MUX_OUT,     -- register multiplexer out
             LB,             -- len multiplexer out (last bit)
-            LB_BUF: std_logic; -- last bit buffer
+            LB_BUF,         -- last bit buffer
+            REG_PP_DIN_BUF_CE: std_logic; -- clock enable for DIN buffer 
             
     signal  DIN_BUF,        -- DIN signal buffer
             D: std_logic_vector (0 to 7); -- P/S8 in signal
 begin
     TX_ENABLE <= START_BUF and CTS_BUF;
-    D <= DIN(0 to 6) & LB_BUF;
+    D <= DIN_BUF(0 to 6) & LB_BUF;
+    REG_PP_DIN_BUF_CE <= CLK_8 and not TX_ENABLE;
     
-    CLK_DIVIDER: CLK_DIVIDER_8 port map (
+    FREQ_DIVIDER: FREQ_DIVIDER_8 port map (
         CLK => CLK,
         RST => RST,
         CLK_8 => CLK_8
@@ -138,18 +138,12 @@ begin
     );
     PG: PARITY_GENERATOR port map (
         D => DIN_BUF,
-        PG_EVEN => PG_EVEN,
-        PG_ODD => PG_ODD
-    );
-    PAR_MUX: MUX2 port map (
-        X0 => PG_EVEN,
-        X1 => PG_ODD,
-        S => PARITY_BUF,
-        Z => PAR_OUT
+        ODD => PARITY_BUF,
+        PG_OUT => PG_OUT
     );
     LEN_MUX: MUX2 port map (
-        X0 => DIN(7),
-        X1 => PAR_OUT,
+        X0 => DIN_BUF(7),
+        X1 => PG_OUT,
         S => LEN_BUF,
         Z => LB
     );
@@ -167,10 +161,10 @@ begin
         X => D,
         Z => REG_OUT
     );
-    REG_PP: REG_PP_8 port map (
+    REG_PP_DIN_BUF: REG_PP_8 port map (
         CLK => CLK,
         RST => RST,
-        CE => CLK_8,
+        CE => REG_PP_DIN_BUF_CE,
         X => DIN,
         Z => DIN_BUF
     );
