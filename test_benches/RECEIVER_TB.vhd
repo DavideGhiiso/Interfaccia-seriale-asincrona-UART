@@ -9,16 +9,18 @@ architecture arch of RECEIVER_TB is
         Port ( 
             CLK   : in STD_LOGIC;
             RST   : in STD_LOGIC;
-            CTS   : in STD_LOGIC;
             RX    : in STD_LOGIC;
+            BC    : in STD_LOGIC;
+            CTS   : out STD_LOGIC;
             READY : out STD_LOGIC;
             DOUT  : out STD_LOGIC_VECTOR (0 to 7)
     );
     end component;
         
-    signal RX   : std_logic;
-    signal CLK  : std_logic;
     signal RST  : std_logic;
+    signal CLK  : std_logic;
+    signal RX   : std_logic;
+    signal BC   : std_logic;
     signal CTS  : std_logic;
     signal READY: std_logic;
     signal DOUT : std_logic_vector (0 to 7);
@@ -27,10 +29,11 @@ architecture arch of RECEIVER_TB is
     
 begin
     -- unit under test
-    UUT: RECEIVER port map (
-        RX => RX,
+    UUT: RECEIVER port map ( 
+        RST => RST,
         CLK => CLK, 
-        RST => RST, 
+        RX => RX, 
+        BC => BC,
         CTS => CTS, 
         READY => READY, 
         DOUT => DOUT
@@ -49,6 +52,7 @@ begin
         MSG <= "11011100";
         RST <= '1';
         RX <= '1';
+        BC <= '1';
         wait for 25 ns;
         RST <= '0';
         wait for 40 ns;

@@ -6,7 +6,7 @@ entity RECEIVER is
         CLK   : in STD_LOGIC;
         RST   : in STD_LOGIC;
         RX    : in STD_LOGIC;
-        FB    : in STD_LOGIC; -- Full Buffer
+        BC    : in STD_LOGIC; -- Clear Buffer
         CTS   : out STD_LOGIC;
         READY : out STD_LOGIC;
         DOUT  : out STD_LOGIC_VECTOR (0 to 7)
@@ -14,10 +14,9 @@ entity RECEIVER is
 end RECEIVER;
 
 architecture arch of RECEIVER is
-    component D_FF is Port (
+    component D_FF_ASYNC_RST is Port (
         RST   : in  std_logic;
         CLK   : in  std_logic;
-        CE    : in  std_logic;
         D     : in  std_logic;
         Q     : out std_logic;
         NOT_Q : out std_logic );
@@ -28,8 +27,7 @@ architecture arch of RECEIVER is
         CLK : in STD_LOGIC;
         J   : in STD_LOGIC;
         K   : in STD_LOGIC;
-        Z   : out STD_LOGIC
-    );
+        Z   : out STD_LOGIC );
     end component;
     
     component COUNTER_8 is Port (
@@ -46,7 +44,7 @@ architecture arch of RECEIVER is
         CE    : in  std_logic;
         RX    : in  STD_LOGIC;
         EOB   : in  STD_LOGIC;
-        EOT   : out STD_LOGIC;
+        SLEEP : out STD_LOGIC;
         ALERT : out STD_LOGIC );
     end component;
         
@@ -65,24 +63,29 @@ architecture arch of RECEIVER is
     signal REG_EN   : STD_LOGIC;
     signal SAMPLE   : STD_LOGIC;  -- slower clock enable to sample RX
     signal EOB      : STD_LOGIC;  -- End Of Byte
-    signal EOT      : STD_LOGIC;  -- End Of Transmission
+    signal SLEEP    : STD_LOGIC;  -- End Of Transmission
     signal ALERT    : STD_LOGIC;
 
 begin
 
-    RX_FF : D_FF port map (
+    RX_FF : D_FF_ASYNC_RST port map (
         RST => RST,
-        CLK => CLK, 
-        CE  => '1',
+        CLK => CLK,
         D   => RX,
         Q   => RX_BUFF
     );
     
-    FB_FF : D_FF port map (
+    READY_FF : D_FF_ASYNC_RST port map (
         RST => RST,
-        CLK => CLK, 
-        CE  => '1',
-        D   => FB,
+        CLK => CLK,
+        D   => ALERT,
+        Q   => READY
+    );
+    
+    BC_FF : D_FF_ASYNC_RST port map (
+        RST => RST,
+        CLK => CLK,
+        D   => BC,
         Q   => CTS
     );
     
@@ -116,7 +119,7 @@ begin
         CE    => SAMPLE,
         RX    => RX_BUFF,
         EOB   => EOB,
-        EOT   => EOT,
+        SLEEP   => SLEEP,
         ALERT => ALERT
     );
 
@@ -129,9 +132,9 @@ begin
     );
     
     J <= not RX_BUFF and not SAMPLE_EN;
-    K <= RX_BUFF and SAMPLE_EN and EOT;
+    K <= RX_BUFF and SAMPLE_EN and SLEEP;
     CNT_RST <= not SAMPLE_EN;
     REG_EN <= not ALERT and SAMPLE;
-    READY <= ALERT;
+    --READY <= ALERT;
 
 end arch;

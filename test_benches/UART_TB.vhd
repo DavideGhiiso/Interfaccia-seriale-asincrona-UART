@@ -12,7 +12,7 @@ architecture arch of UART_TB is
            LEN    : in STD_LOGIC;
            PARITY : in STD_LOGIC;
            CTS    : in STD_LOGIC;
-           FB     : in STD_LOGIC;
+           BC     : in STD_LOGIC;
            RX     : in STD_LOGIC;
            DIN    : in STD_LOGIC_VECTOR (0 to 7);
            TX     : out STD_LOGIC;
@@ -22,11 +22,11 @@ architecture arch of UART_TB is
     end component;
     
     constant CLK_PERIOD_1 : time := 130 ns;
-    constant CLK_PERIOD_2 : time := CLK_PERIOD_1 * 1.02;
+    constant CLK_PERIOD_2 : time := CLK_PERIOD_1 * 1.05;
     
     signal DIN, DOUT : std_logic_vector (0 to 7);
     
-    signal TX, START, CTS, LEN, PARITY, READY, FB,
+    signal TX, START, CTS, LEN, PARITY, READY, BC,
            CLK_TX, CLK_RX, RST, CLK_RX_ENABLE : std_logic;
         
 begin
@@ -41,7 +41,7 @@ begin
         LEN => LEN,
         PARITY => PARITY,
         -- rx
-        FB => '1',
+        BC => '1',
         RX => '1'
     );
     
@@ -56,7 +56,7 @@ begin
         PARITY => '0',
         -- rx
         DOUT => DOUT, 
-        FB => FB,
+        BC => BC,
         RX => TX,
         RTS => CTS, 
         READY => READY
@@ -86,7 +86,7 @@ begin
     process begin
     RST <= '1';
     wait for CLK_PERIOD_1 * 10;
-    FB     <= '1';
+    BC     <= '1';
     START  <= '0';
     LEN    <= '0';
     PARITY <= '0';
@@ -109,9 +109,9 @@ begin
     LEN    <= '0';
     
     wait for CLK_PERIOD_1 * 8 * 4;
-    FB     <= '0';
+    BC     <= '0';
     wait for CLK_PERIOD_1 * 8 * 10;
-    FB     <= '1';
+    BC     <= '1';
     
     -- testing even parity
     START  <= '1';

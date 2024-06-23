@@ -7,7 +7,7 @@ entity RX_FSM is
            CE     : in  STD_LOGIC;
            RX     : in  STD_LOGIC;
            EOB    : in  STD_LOGIC;
-           EOT    : out STD_LOGIC;
+           SLEEP  : out STD_LOGIC;
            ALERT  : out STD_LOGIC
     );
 end RX_FSM;
@@ -38,7 +38,7 @@ begin
     output: process(PS)
     begin
         --SOT <= '1' when PS = R or PS = S else '0';
-        EOT <= '1' when PS = W else '0';
+        SLEEP <= '1' when PS = W else '0';
         ALERT <= '1' when PS = A else '0';
     end process;
 end arch;
