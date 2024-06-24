@@ -21,8 +21,8 @@ architecture arch of UART_TB is
            DOUT   : out STD_LOGIC_VECTOR (0 to 7));
     end component;
     
-    constant CLK_PERIOD_1 : time := 130 ns;
-    constant CLK_PERIOD_2 : time := CLK_PERIOD_1 * 1.05;
+    constant CLK_PERIOD_1 : time := 135 ns;
+    constant CLK_PERIOD_2 : time := CLK_PERIOD_1 * 1.02;
     
     signal DIN, DOUT : std_logic_vector (0 to 7);
     
@@ -84,75 +84,80 @@ begin
     end process;
     
     process begin
-    RST <= '1';
-    wait for CLK_PERIOD_1 * 10;
-    BC     <= '1';
-    START  <= '0';
-    LEN    <= '0';
-    PARITY <= '0';
-    DIN    <= "00000000";
-    
-    wait for CLK_PERIOD_1 * 10;
-    RST <= '0';
-    wait for CLK_PERIOD_1 * 10;
-    
-    -- testing trasmission interruption
-    -- 4th message
-    START  <= '1';
-    PARITY <= '0';
-    LEN    <= '0';
-    DIN    <= "10101010";
-    
-    wait for CLK_PERIOD_1 * 8;
-    START  <= '0';
-    PARITY <= '0';
-    LEN    <= '0';
-    
-    wait for CLK_PERIOD_1 * 8 * 4;
-    BC     <= '0';
-    wait for CLK_PERIOD_1 * 8 * 10;
-    BC     <= '1';
-    
-    -- testing even parity
-    START  <= '1';
-    PARITY <= '0';
-    LEN    <= '1';
-    DIN    <= "00011100";
-    
-    wait for CLK_PERIOD_1 * 8;
-    START  <= '0';
-    LEN    <= '0';
-    
-    wait for CLK_PERIOD_1 * 8 * 10;
-    
-    -- testing odd parity
-    START  <= '1';
-    PARITY <= '1';
-    LEN    <= '1';
-    DIN    <= "01001101";
-    
-    wait for CLK_PERIOD_1 * 8;
-    START  <= '0';
-    PARITY <= '0';
-    LEN    <= '0';
+        RST <= '1';
+        wait for CLK_PERIOD_1 * 10;
+        FB     <= '1';
+        START  <= '0';
+        LEN    <= '0';
+        PARITY <= '0';
+        DIN    <= "00000000";
         
-    wait for CLK_PERIOD_1 * 8 * 9;
-    
-    -- full len
-    START  <= '1';
-    PARITY <= '0';
-    LEN    <= '0';
-    DIN    <= "10110101";
-    
-    wait for CLK_PERIOD_1 * 8;
-    START  <= '0';
-    PARITY <= '0';
-    LEN    <= '0';
-    
-    wait for CLK_PERIOD_1 * 8 * 9;
-    
-    RST <= '1';
-    wait;
+        wait for CLK_PERIOD_1 * 10;
+        RST <= '0';
+        wait for CLK_PERIOD_1 * 10;
+        
+        -- TEST 1: 8N1
+        START  <= '1';
+        PARITY <= '0';
+        LEN    <= '0';
+        DIN    <= "10110101";
+        
+        wait for CLK_PERIOD_1 * 8;
+        START  <= '0';
+        PARITY <= '0';
+        LEN    <= '0';
+        DIN    <= "01100111";
+        wait for CLK_PERIOD_1 * 8 * 9;
+        
+        -- TEST 2: 7E1
+        START  <= '1';
+        PARITY <= '0';
+        LEN    <= '1';
+        DIN    <= "00011100";
+        
+        wait for CLK_PERIOD_1 * 8;
+        START  <= '0';
+        PARITY <= '0';
+        LEN    <= '0';
+        DIN    <= "01100111";
+        wait for CLK_PERIOD_1 * 8 * 9;
+        
+        -- TEST 3: 7O1
+        START  <= '1';
+        PARITY <= '1';
+        LEN    <= '1';
+        DIN    <= "01001110";
+        
+        wait for CLK_PERIOD_1 * 8;
+        START  <= '0';
+        PARITY <= '0';
+        LEN    <= '0';
+        DIN    <= "01100111";
+        wait for CLK_PERIOD_1 * 8 * 9;
+        
+        -- TEST 4: trasmission interruption
+        START  <= '1';
+        PARITY <= '0';
+        LEN    <= '0';
+        DIN    <= "10101010";
+        
+        wait for CLK_PERIOD_1 * 8;
+        START  <= '0';
+        PARITY <= '0';
+        LEN    <= '0';
+        
+        wait for CLK_PERIOD_1 * 8 * 4;
+        FB     <= '0';
+        wait for CLK_PERIOD_1 * 8 * 4;
+        START  <= '1';
+        wait for CLK_PERIOD_1 * 8;
+        START  <= '0';
+        wait for CLK_PERIOD_1 * 8;
+        FB     <= '1';
+        
+        
+        RST <= '1';
+        wait;
     end process;
 
 end arch;
