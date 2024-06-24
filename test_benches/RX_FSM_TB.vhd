@@ -6,17 +6,19 @@ end RX_FSM_TB;
 
 architecture arch of RX_FSM_TB is
     component RX_FSM is Port ( 
-            CLK    : in  STD_LOGIC;
-            RST    : in  STD_LOGIC;
-            CE     : in  STD_LOGIC;
-            RX     : in  STD_LOGIC;
-            EOB    : in  STD_LOGIC;
-            EOT    : out STD_LOGIC;
-            ALERT  : out STD_LOGIC
-        );
+        CLK    : in  STD_LOGIC;
+        RST    : in  STD_LOGIC;
+        CE     : in  STD_LOGIC;
+        RX     : in  STD_LOGIC;
+        EOB    : in  STD_LOGIC;
+        SLEEP  : out STD_LOGIC;
+        ALERT  : out STD_LOGIC
+    );
     end component;
     
-    signal CLK, RST, CE, RX, EOB, EOT, ALERT : STD_LOGIC;
+    constant CLK_T : time := 10 ns;
+    
+    signal CLK, RST, CE, RX, EOB, SLEEP, ALERT : STD_LOGIC;
 
 begin
     UUT : RX_FSM port map (
@@ -25,51 +27,64 @@ begin
         CE    => CE,
         RX    => RX,
         EOB   => EOB,
-        EOT   => EOT,
+        SLEEP  => SLEEP,
         ALERT => ALERT
     );
     
     CLK_process : process
     begin
         CLK <= '0';
-        wait for 2.5 ns;
+        wait for CLK_T / 2;
         CLK <= '1';
-        wait for 2.5 ns;
+        wait for CLK_T / 2;
     end process;
     
     CE_process : process
     begin
-        CE <= '0';
-        wait for 10 ns;
-        if (RST = '0') then CE <= '1';
-        end if;
-        wait for 10 ns;
+        CE <= '0' or RST;
+            wait for CLK_T * 7;
+            CE <= '1';
+            wait for CLK_T;
     end process;
     
     process begin
+    -- setup
     RST <= '1';
+    wait for CLK_T * 4;
     RX <= '1';
     EOB <= '0';
-    
-    wait for 30 ns;
+    wait for CLK_T * 8;
     RST <= '0';
+    wait for CLK_T * 16;
     
-    wait for 25 ns;
-    
-    -- 1st byte
-    for I in 0 to 8 loop
+    -- 1st trasmission
+    RX <= '0';
+    wait for CLK_T * 8;
+    for I in 0 to 6 loop
         RX <= not RX;
-        wait for 40 ns;
+        wait for CLK_T * 8;
     end loop; 
+    RX <= not RX;
+    EOB <= '1';
+    wait for CLK_T * 8;
+    EOB <= '0';
+    RX <= '1';
+    wait for CLK_T * 16;
     
-    wait for 80 ns;
-    
-    -- 2nd byte
-    for I in 0 to 8 loop
+    -- 2nd trasmission
+    RX <= '0';
+    wait for CLK_T * 8;
+    for I in 0 to 6 loop
         RX <= not RX;
-        wait for 40 ns;
+        wait for CLK_T * 8;
     end loop; 
-    
+    RX <= not RX;
+    EOB <= '1';
+    wait for CLK_T * 8;
+    EOB <= '0';
+    RX <= '1';
+    wait for CLK_T * 8 * 2;
+     
     wait;
     
     end process;
