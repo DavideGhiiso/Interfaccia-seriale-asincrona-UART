@@ -86,7 +86,7 @@ begin
     process begin
         RST <= '1';
         wait for CLK_PERIOD_1 * 10;
-        FB     <= '1';
+        BC     <= '1';
         START  <= '0';
         LEN    <= '0';
         PARITY <= '0';
@@ -147,14 +147,26 @@ begin
         LEN    <= '0';
         
         wait for CLK_PERIOD_1 * 8 * 4;
-        FB     <= '0';
+        BC     <= '0';
         wait for CLK_PERIOD_1 * 8 * 4;
         START  <= '1';
         wait for CLK_PERIOD_1 * 8;
         START  <= '0';
         wait for CLK_PERIOD_1 * 8;
-        FB     <= '1';
+        BC     <= '1';
+        wait for CLK_PERIOD_1 * 8 * 3;
         
+        -- TEST 5: retrasmission
+        START  <= '1';
+        PARITY <= '0';
+        LEN    <= '0';
+        
+        wait for CLK_PERIOD_1 * 8;
+        START  <= '0';
+        PARITY <= '0';
+        LEN    <= '0';
+        
+        wait for CLK_PERIOD_1 * 8 * 12;
         
         RST <= '1';
         wait;

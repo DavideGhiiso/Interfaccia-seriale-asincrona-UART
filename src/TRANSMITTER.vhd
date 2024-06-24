@@ -16,10 +16,11 @@ end TRANSMITTER;
 
 architecture Behavioral of TRANSMITTER is
     component D_FF is port (
+        RST:    in  std_logic;
+        SET:    in  std_logic;
         CLK:    in  std_logic;
         CE:     in  std_logic;
         D:      in  std_logic;
-        RST:    in  std_logic;
         Q:      out std_logic;
         NOT_Q:  out std_logic
     );
@@ -70,7 +71,7 @@ architecture Behavioral of TRANSMITTER is
             TX_ENABLE,      -- signal that starts transmission
             PG_OUT,         -- parity multiplexer out
             REG_OUT,        -- register out
-            TX_MUX_OUT,     -- register multiplexer out
+            TX_REG_OUT,     -- register multiplexer out
             LB,             -- len multiplexer out (last bit)
             LB_BUF,         -- last bit buffer
             REG_PP_DIN_BUF_CE: std_logic; -- clock enable for DIN buffer 
@@ -88,51 +89,58 @@ begin
         CLK_8 => CLK_8
     );
     FF_START_BUF: D_FF port map (
+        RST => RST,
+        SET => '0',
         CLK => CLK,
         CE => CLK_8,
-        RST => RST,
         D => START,
         Q => START_BUF
     );
     FF_CTS_BUF: D_FF port map (
+        RST => RST,
+        SET => '0',
         CLK => CLK,
         CE => CLK_8,
-        RST => RST,
         D => CTS,
         Q => CTS_BUF
     );
     FF_LEN_BUF: D_FF port map (
+        RST => RST,
+        SET => '0',
         CLK => CLK,
         CE => CLK_8,
-        RST => RST,
         D => LEN,
         Q => LEN_BUF
     );
     FF_PARITY_BUF: D_FF port map (
+        RST => RST,
+        SET => '0',
         CLK => CLK,
         CE => CLK_8,
-        RST => RST,
         D => PARITY,
         Q => PARITY_BUF
     );
     FF_TX_BUF: D_FF port map (
+        RST => '0',
+        SET => RST,
         CLK => CLK,
         CE => CLK_8,
-        RST => RST,
-        D => TX_MUX_OUT,
+        D => TX_REG_OUT,
         Q => TX
     );
     FF_TX_ENABLE_BUF: D_FF port map (
+        RST => RST,
+        SET => '0',
         CLK => CLK,
         CE => CLK_8,
-        RST => RST,
         D => TX_ENABLE,
         Q => TX_ENABLE_BUF
     );
     FF_LB_BUF: D_FF port map (
+        RST => RST,
+        SET => '0',
         CLK => CLK,
         CE => CLK_8,
-        RST => RST,
         D => LB,
         Q => LB_BUF
     );
@@ -146,12 +154,6 @@ begin
         X1 => PG_OUT,
         S => LEN_BUF,
         Z => LB
-    );
-    TX_MUX: MUX2 port map (
-        X0 => REG_OUT,
-        X1 => '0',
-        S => TX_ENABLE_BUF,
-        Z => TX_MUX_OUT
     );
     REG_PS: REG_PS_8 port map (
         CLK => CLK,
@@ -168,4 +170,6 @@ begin
         X => DIN,
         Z => DIN_BUF
     );
+    
+    TX_REG_OUT <= REG_OUT and not TX_ENABLE_BUF;
 end Behavioral;
