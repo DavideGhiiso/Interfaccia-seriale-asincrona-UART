@@ -1,5 +1,12 @@
-# Interfaccia-seriale-asincrona-UART
-Prova finale Reti Logiche 2024
+# Prova finale Reti Logiche 2024: interfaccia seriale asincrona UART
 
-- [Link progetto Overleaf](https://it.overleaf.com/3861312412pbmfpjwnkcrd#0a5341)
-- [Link draw.io](https://drive.google.com/file/d/1lMhukQw-N0kUroz9Sd2Oe96o9emWtrAU/view?usp=sharing)
+
+### Valutazione: 30/30
+L’obiettivo del progetto è la progettazione di un’interfaccia seriale asincrona full duplex che
+contenga un trasmettitore ed un ricevitore UART dotati di segnalazione hardware del controllo
+di flusso.
+
+La repository contiene il codice VHDL che descrive il componente e una relazione che ne descrive la specifica, l'architettura e il test bench effettuato.
+## Membri
+- [Davide Ghisolfi](https://github.com/DavideGhiiso)
+- [Gioele Guaiumi](https://github.com/Zendikcar)
