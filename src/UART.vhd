@@ -8,6 +8,7 @@ entity UART is
            LEN    : in STD_LOGIC;
            PARITY : in STD_LOGIC;
            CTS    : in STD_LOGIC;
+           BC     : in STD_LOGIC;
            RX     : in STD_LOGIC;
            DIN    : in STD_LOGIC_VECTOR (0 to 7);
            TX     : out STD_LOGIC;
@@ -34,9 +35,10 @@ architecture arch of UART is
         Port ( 
             CLK   : in STD_LOGIC;
             RST   : in STD_LOGIC;
+            BC    : in STD_LOGIC; -- Buffer Clear
             RX    : in STD_LOGIC;
             READY : out STD_LOGIC;
-            RTS   : out STD_LOGIC;
+            CTS   : out STD_LOGIC;
             DOUT  : out STD_LOGIC_VECTOR (0 to 7)
     );
     end component;
@@ -58,9 +60,10 @@ begin
     RX_UNIT: RECEIVER port map (
         CLK => CLK, 
         RST => RST,
+        BC => BC,
         DOUT => DOUT, 
         RX => RX,
-        RTS => RTS, 
+        CTS => RTS, 
         READY => READY
     );
 

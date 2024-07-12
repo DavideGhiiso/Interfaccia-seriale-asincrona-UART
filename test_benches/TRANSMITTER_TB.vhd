@@ -4,6 +4,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity TRANSMITTER_TB is
 end TRANSMITTER_TB;
 
+
 architecture Behavioral of TRANSMITTER_TB is
     component TRANSMITTER is
     Port (
@@ -58,53 +59,50 @@ begin
             START <= '1';
             wait for 20ns;
             START <= '0';
+            DIN <= "00000000";
             LEN <= '0';
             wait for 180ns;
-            CTS <= '0';
-            wait for 10ns;
             -- 00101001 PAR:1 LEN:1 -> 00101000
             LEN <= '1';
             PARITY <= '1';
             DIN <= "00101001";
-            
             START <= '1';
-            wait for 10ns;
-            CTS <= '1';
-            
-            wait for 10ns;
+            wait for 20ns;
             START <= '0';
+            DIN <= "00000000";
             PARITY <= '0';
             LEN <= '0';
-            wait for 180ns;
-            CTS <= '0';
-            wait for 20ns;
+            wait for 190ns;
             -- 00101001 PAR:1 LEN:0 -> 00101001
             LEN <= '0';
             PARITY <= '1';
             DIN <= "00101001";
-            CTS <= '1';
-            wait for 9ns;
             START <= '1';
             wait for 20ns;
+            DIN <= "00000000";
             START <= '0';
             PARITY <= '0';
             LEN <= '0';
             wait for 180ns;
-            CTS <= '0';
-            wait for 20ns;
             -- 00101001 PAR:0 LEN:0 sudden interruption
             LEN <= '0';
             PARITY <= '0';
             DIN <= "00101001";
-            CTS <= '1';
-            wait for 9ns;
             START <= '1';
             wait for 20ns;
+            DIN <= "00000000";
             START <= '0';
             PARITY <= '0';
             LEN <= '0';
             wait for 75ns; --random time < 180ns
             CTS <= '0';
+            wait for 105ns;
+            -- 00101001 PAR:0 LEN:0 CTS disabled
+            DIN <= "00101001";
+            START <= '1';
+            wait for 20ns;
+            DIN <= "00000000";
+            START <= '0';
             wait;
 		end process;
 end Behavioral;

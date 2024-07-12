@@ -12,6 +12,7 @@ architecture arch of UART_TB is
            LEN    : in STD_LOGIC;
            PARITY : in STD_LOGIC;
            CTS    : in STD_LOGIC;
+           BC     : in STD_LOGIC;
            RX     : in STD_LOGIC;
            DIN    : in STD_LOGIC_VECTOR (0 to 7);
            TX     : out STD_LOGIC;
@@ -20,14 +21,17 @@ architecture arch of UART_TB is
            DOUT   : out STD_LOGIC_VECTOR (0 to 7));
     end component;
     
+    constant CLK_PERIOD_1 : time := 135 ns;
+    constant CLK_PERIOD_2 : time := CLK_PERIOD_1 * 1.02;
+    
     signal DIN, DOUT : std_logic_vector (0 to 7);
     
-    signal TX, START, CTS, LEN, PARITY, READY,
-           CLK, RST : std_logic;
-		
+    signal TX, START, CTS, LEN, PARITY, READY, BC,
+           CLK_TX, CLK_RX, RST, CLK_RX_ENABLE : std_logic;
+        
 begin
-    UUT: UART port map (
-        CLK => CLK,
+    UUT_TX: UART port map (
+        CLK => CLK_TX,
         RST => RST,
         -- tx
         DIN => DIN,
@@ -37,65 +41,135 @@ begin
         LEN => LEN,
         PARITY => PARITY,
         -- rx
+        BC => '1',
+        RX => '1'
+    );
+    
+    UUT_RX: UART port map (
+        CLK => CLK_RX,
+        RST => RST,
+        -- tx
+        DIN => "00000000",
+        CTS => '0',
+        START => '0',
+        LEN => '0',
+        PARITY => '0',
+        -- rx
         DOUT => DOUT, 
+        BC => BC,
         RX => TX,
         RTS => CTS, 
         READY => READY
     );
     
-    CLK_process :process
-		begin
-			CLK <= '0';
-			wait for 5 ns;
-			CLK <= '1';
-			wait for 5 ns;
-		end process;
-	
-	process begin
-	RST <= '0';
-	wait for 5 ns;
-	RST <= '1';
-	
-	-- first message
-	START <= '0';
-	LEN <= '0';
-	PARITY <= '0';
-	DIN <= "01001101";
-	wait for 15 ns;
-	RST <= '0';
-	
-	wait for 20 ns;
-	START <= '1';
-	LEN <= '1';
-	
-	wait for 80 ns;
-	START <= '0';
-	LEN <= '0';
-	
-	for I in 0 to 8 loop
-            wait for 80 ns;
-        end loop;
-	
-	wait for 240 ns;
-	
-	-- second message
-	LEN <= '1';
-	PARITY <= '1';
-	START <= '1';
-	DIN <= "00011100";
-	
-	wait for 80 ns;
-	START <= '0';
-	LEN <= '0';
-	PARITY <= '0';
-	
-	for I in 0 to 8 loop
-            wait for 80 ns;
-        end loop;
+    CLK_process_TX: process
+        begin
+            CLK_TX <= '0';
+            wait for CLK_PERIOD_1 / 2;
+            CLK_TX <= '1';
+            wait for CLK_PERIOD_1 / 2;
+        end process;
         
-	wait for 160 ns;
-	RST <= '1';
-	wait;
-	end process;
+    CLK_process_RX: process
+    begin
+        if(CLK_RX_ENABLE='U') then
+            CLK_RX_ENABLE <= '1';
+            wait for CLK_PERIOD_1 / 2; -- OFFSET
+        else
+            CLK_RX <= '0';
+            wait for CLK_PERIOD_2 / 2;
+            CLK_RX <= '1';
+            wait for CLK_PERIOD_2 / 2;
+        end if;
+    end process;
+    
+    process begin
+        RST <= '1';
+        wait for CLK_PERIOD_1 * 10;
+        BC     <= '1';
+        START  <= '0';
+        LEN    <= '0';
+        PARITY <= '0';
+        DIN    <= "00000000";
+        
+        wait for CLK_PERIOD_1 * 10;
+        RST <= '0';
+        wait for CLK_PERIOD_1 * 10;
+        
+        -- TEST 1: 8N1
+        START  <= '1';
+        PARITY <= '0';
+        LEN    <= '0';
+        DIN    <= "10110101";
+        
+        wait for CLK_PERIOD_1 * 8;
+        START  <= '0';
+        PARITY <= '0';
+        LEN    <= '0';
+        DIN    <= "01100111";
+        wait for CLK_PERIOD_1 * 8 * 9;
+        
+        -- TEST 2: 7E1
+        START  <= '1';
+        PARITY <= '0';
+        LEN    <= '1';
+        DIN    <= "00011100";
+        
+        wait for CLK_PERIOD_1 * 8;
+        START  <= '0';
+        PARITY <= '0';
+        LEN    <= '0';
+        DIN    <= "01100111";
+        wait for CLK_PERIOD_1 * 8 * 9;
+        
+        -- TEST 3: 7O1
+        START  <= '1';
+        PARITY <= '1';
+        LEN    <= '1';
+        DIN    <= "01001110";
+        
+        wait for CLK_PERIOD_1 * 8;
+        START  <= '0';
+        PARITY <= '0';
+        LEN    <= '0';
+        DIN    <= "01100111";
+        wait for CLK_PERIOD_1 * 8 * 9;
+        
+        -- TEST 4: trasmission interruption
+        START  <= '1';
+        PARITY <= '0';
+        LEN    <= '0';
+        DIN    <= "10101010";
+        
+        wait for CLK_PERIOD_1 * 8;
+        START  <= '0';
+        PARITY <= '0';
+        LEN    <= '0';
+        
+        wait for CLK_PERIOD_1 * 8 * 4;
+        BC     <= '0';
+        wait for CLK_PERIOD_1 * 8 * 4;
+        START  <= '1';
+        wait for CLK_PERIOD_1 * 8;
+        START  <= '0';
+        wait for CLK_PERIOD_1 * 8;
+        BC     <= '1';
+        wait for CLK_PERIOD_1 * 8 * 3;
+        
+        -- TEST 5: retrasmission
+        START  <= '1';
+        PARITY <= '0';
+        LEN    <= '0';
+        
+        wait for CLK_PERIOD_1 * 8;
+        START  <= '0';
+        PARITY <= '0';
+        LEN    <= '0';
+        
+        wait for CLK_PERIOD_1 * 8 * 12;
+        
+        RST <= '1';
+        wait;
+    end process;
 
 end arch;

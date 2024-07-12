@@ -1,11 +1,11 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-entity CLK_DIVIDER_8_TB is
-end CLK_DIVIDER_8_TB;
+entity FREQ_DIVIDER_8_TB is
+end FREQ_DIVIDER_8_TB;
 
-architecture Behavioral of CLK_DIVIDER_8_TB is
-    component CLK_DIVIDER_8 is
+architecture Behavioral of FREQ_DIVIDER_8_TB is
+    component FREQ_DIVIDER_8 is
         port (
             CLK:    in  std_logic;
             RST:    in std_logic;
@@ -19,7 +19,7 @@ architecture Behavioral of CLK_DIVIDER_8_TB is
 	
 begin
     -- unit under test
-    UUT: CLK_DIVIDER_8 port map (
+    UUT: FREQ_DIVIDER_8 port map (
         CLK => CLK,
         RST => RST,
         CLK_8 => CLK_8

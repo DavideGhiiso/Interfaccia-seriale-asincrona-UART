@@ -15,7 +15,9 @@ end REG_SP_8;
 architecture Behavioral of REG_SP_8 is
     signal Z_buf: std_logic_vector (0 to 7); -- output buffer
 begin
-    reg: process(CLK, RST)
+    Z <= Z_buf;
+    
+    reg: process(CLK, RST, X)
     begin
         if(CLK'event and CLK = '1') then
             if(RST = '1') then
@@ -27,7 +29,6 @@ begin
                 end loop; 
             end if;
         end if;
-        Z <= Z_buf;
     end process;
 
 end Behavioral;
